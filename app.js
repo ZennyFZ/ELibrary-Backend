@@ -1,15 +1,24 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const mongoose  = require('mongoose');
 
 // const bookRouter = require('./routes/bookRouter');
 // const userRouter = require('./routes/userRouter');
 const summarizeRouter = require('./routes/summarizeRouter')
 
-var app = express();
+const app = express();
 require('dotenv').config()
+
+const url = process.env.DATABASE_CONNECTION_URI
+const connect = mongoose.connect(url)
+connect.then((db)=>{
+  console.log("Connected to the Database");
+}).catch((err)=>{
+  console.log(err);
+})
 
 app.use(logger('dev'));
 app.use(express.json());
