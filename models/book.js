@@ -1,19 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const commentSchema = new Schema({
-    rating: { 
-        type: Number,
-        min: 1,
-        max:5,
-        require: true
-    },
-    comment: {
-        type: String,
-        require: true
-    },
-},{timestamps: true});
-
 const bookSchema = new Schema({
     title: { 
         type: String,
@@ -63,7 +50,6 @@ const bookSchema = new Schema({
         ref: "Categories",
         require: true
     },
-    comments: [commentSchema],
 },{ timestamps: true, });
 
 const books = mongoose.model("Book", bookSchema);
