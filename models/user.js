@@ -25,6 +25,10 @@ const userSchema = new Schema({
         type: Boolean, 
         require: true
     },
+    isPremium: {
+        type: Boolean,
+        require: true
+    },
     bookList: [{
         type: String
     }],

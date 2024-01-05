@@ -8,6 +8,7 @@ const mongoose  = require('mongoose');
 const bookRouter = require('./routes/bookRouter');
 const userRouter = require('./routes/userRouter');
 const summarizeRouter = require('./routes/summarizeRouter')
+const translateRouter = require('./routes/translateRouter')
 
 const app = express();
 require('dotenv').config()
@@ -30,6 +31,7 @@ const apiPath = "/api/v1"
 app.use(`${apiPath}/book`, bookRouter);
 app.use(`${apiPath}/user`, userRouter);
 app.use(`${apiPath}/summarize`, summarizeRouter);
+app.use(`${apiPath}/translate`, translateRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
