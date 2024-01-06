@@ -38,19 +38,15 @@ const bookSchema = new Schema({
         type: String, 
         require: true
     },
-    quantity: {
-        type: Number, 
-        require: true
-    },
     isDeleted: {
         type: Boolean, 
     },
     category: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Categories",
+        ref: "categories",
         require: true
     },
 },{ timestamps: true, });
 
-const books = mongoose.model("Book", bookSchema);
+const books = mongoose.model("books", bookSchema);
 module.exports = books;

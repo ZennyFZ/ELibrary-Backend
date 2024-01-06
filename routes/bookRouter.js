@@ -4,7 +4,7 @@ const bookController = require("../controllers/bookController");
 
 //get book and category
 bookRouter.get("/get-all-books", bookController.getAllBooks);
-bookRouter.get("/get-book-by-id/:id", bookController.getBookById);
+bookRouter.get("/:id", bookController.getBookById);
 bookRouter.get("/get-all-categories", bookController.getAllCategories);
 
 //CRUD (admin only)
