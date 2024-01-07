@@ -21,8 +21,8 @@ const userSchema = new Schema({
         type: String, 
         require: true
     },
-    isAdmin: {
-        type: Boolean, 
+    role: {
+        type: String,
         require: true
     },
     isPremium: {
@@ -37,5 +37,5 @@ const userSchema = new Schema({
     }],
 }, {timestamps: true});
 
-const Users = mongoose.model("Users", userSchema);
+const Users = mongoose.model("users", userSchema);
 module.exports = Users;
