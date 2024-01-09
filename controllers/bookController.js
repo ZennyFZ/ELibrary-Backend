@@ -1,6 +1,6 @@
+const { getSirvToken, uploadImageToSirv } = require('../middleware/cloudStorage');
 const book = require('../models/book');
 const category = require('../models/category');
-const axios = require('axios');
 
 class bookController {
 
@@ -63,6 +63,8 @@ class bookController {
 
     uploadBookImage(req, res, next) {
         console.log(req.file);
+        getSirvToken(req, res, next);
+        //.............
     }
 
     updateBook(req, res, next) {

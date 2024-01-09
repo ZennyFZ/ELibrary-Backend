@@ -1,19 +1,8 @@
 const express = require('express');
-const multer = require('multer');
 const bookRouter = express.Router();
 const bookController = require("../controllers/bookController");
 const { isLogin, isAdmin } = require('../middleware/loginChecker');
-
-// Configure Multer for file uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, './uploads')
-    },
-    filename: (req, file, cb) => {
-      cb(null, file.fieldname + '-' + Date.now())
-    }
-});
-const upload = multer({ storage });
+const upload = require('../middleware/upload');
 
 //get book and category
 bookRouter.get("/get-all-books", bookController.getAllBooks);
