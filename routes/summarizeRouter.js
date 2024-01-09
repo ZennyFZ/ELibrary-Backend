@@ -1,9 +1,8 @@
 const express = require('express');
 const summarizeRouter = express.Router();
 const summarizeController = require('../controllers/summarizeController');
+const { isLogin } = require('../middleware/loginChecker');
 
-summarizeRouter
-.route('/')
-.post(summarizeController.summarizeTheText)
+summarizeRouter.post('/', isLogin , summarizeController.summarizeTheText)
 
 module.exports = summarizeRouter;
