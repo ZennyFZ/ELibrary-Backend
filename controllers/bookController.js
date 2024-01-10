@@ -1,6 +1,7 @@
-const { getSirvToken, uploadImageToSirv } = require('../middleware/cloudStorage');
 const book = require('../models/book');
 const category = require('../models/category');
+const {getStorage, ref, getDownloadURL, uploadBytesResumable} = require('firebase/storage');
+const storage = getStorage();
 
 class bookController {
 
@@ -61,10 +62,33 @@ class bookController {
         res.send('Add Book');
     }
 
-    uploadBookImage(req, res, next) {
-        console.log(req.file);
-        getSirvToken(req, res, next);
-        //.............
+    async uploadBookImage(req, res, next) {
+        try {
+            const storageRef = ref(storage, `files/${req.file.originalname + "       " + Date.now()}`);
+    
+            // Create file metadata including the content type
+            const metadata = {
+                contentType: req.file.mimetype,
+            };
+    
+            // Upload the file in the bucket storage
+            const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
+            //by using uploadBytesResumable we can control the progress of uploading like pause, resume, cancel
+    
+            // Grab the public url
+            const downloadURL = await getDownloadURL(snapshot.ref);
+    
+            console.log('File successfully uploaded.');
+            return res.json({
+                message: 'file uploaded to firebase storage',
+                name: req.file.originalname,
+                type: req.file.mimetype,
+                downloadURL: downloadURL
+            })
+        } catch (error) {
+            console.log(error);
+            return res.status(400).json(error.message)
+        }
     }
 
     updateBook(req, res, next) {

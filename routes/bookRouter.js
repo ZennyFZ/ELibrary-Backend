@@ -1,8 +1,16 @@
 const express = require('express');
 const bookRouter = express.Router();
+
+//firebase
+const {initializeApp} = require('firebase/app');
+const config = require('../config/firebase');
+initializeApp(config.firebaseConfig);
+
 const bookController = require("../controllers/bookController");
 const { isLogin, isAdmin } = require('../middleware/loginChecker');
 const upload = require('../middleware/upload');
+
+////////////////////////////////////////////////////////////////////////////////////////
 
 //get book and category
 bookRouter.get("/get-all-books", bookController.getAllBooks);
