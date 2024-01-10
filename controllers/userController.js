@@ -77,22 +77,7 @@ class userController {
     }
 
     getCurrentUser(req, res, next) {
-        const token = req.headers['cookie'].split('=')[1];
-        const decoded = jwt.verify(token, 'elibrary1235');
-        if (!decoded) {
-            res.status(404)
-            res.json({
-                message: 'User not found!'
-            })
-        }
-        if (decoded.exp < Date.now() / 1000) {
-            res.status(404)
-            res.json({
-                message: 'Token expired!'
-            })
-        }
-        const email = decoded.email;
-        user.findOne({ email }).then(user => {
+        user.findOne({ email: decoded.email }).then(user => {
             res.status(200)
             res.json({
                 user
@@ -101,11 +86,88 @@ class userController {
     }
 
     UpdateProfile(req, res, next) {
-        res.send('Update Profile');
+        user.findOne({ email: decoded.email }).then(user => {
+            if (user) {
+                user.name = req.body.name? req.body.name : user.name;
+                user.email = req.body.email? req.body.email : user.email;
+                user.dob = req.body.dob? req.body.dob : user.dob;
+                user.phone = req.body.phone? req.body.phone : user.phone;
+                user.save().then(user => {
+                    res.status(200)
+                    res.json({
+                        message: 'Update profile successful!'
+                    })
+                })
+            } else {
+                res.status(404)
+                res.json({
+                    message: 'User not found!'
+                })
+            }
+        })
     }
 
     ChangePassword(req, res, next) {
-        res.send('Change Password');
+        user.findOne({ email: decoded.email }).then(user => {
+            if (user) {
+                bcrypt.compare(req.body.oldPassword, user.password, (err, result) => {
+                    if (err) {
+                        res.status(500)
+                        res.json({
+                            message: "Internal Server Error!"
+                        })
+                    } else {
+                        if (result) {
+                            bcrypt.hash(req.body.newPassword, 8, (err, hash) => {
+                                if (err) {
+                                    res.status(500)
+                                    res.json({
+                                        message: "Internal Server Error!"
+                                    })
+                                } else {
+                                    user.password = hash;
+                                    user.save().then(user => {
+                                        res.status(200)
+                                        res.json({
+                                            message: 'Change password successful!'
+                                        })
+                                    })
+                                }
+                            })
+                        } else {
+                            res.status(404)
+                            res.json({
+                                message: 'Password does not match!'
+                            })
+                        }
+                    }
+                })
+            } else {
+                res.status(404)
+                res.json({
+                    message: 'User not found!'
+                })
+            }
+        })
+    }
+
+    updateUserRole(req, res, next) {
+        user.findOne({ _id: req.body.id }).then(user => {
+            if (user) {
+                user.role = req.body.role;
+                user.save().then(user => {
+                    res.status(200)
+                    res.json({
+                        message: 'Update role successful!'
+                    })
+                })
+            } else {
+                res.status(404)
+                res.json({
+                    message: 'User not found!'
+                })
+            }
+        })
     }
 }
 

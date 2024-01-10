@@ -26,13 +26,6 @@ const userSchema = new Schema({
         type: String,
         require: true
     },
-    isPremium: {
-        type: Boolean,
-        require: true
-    },
-    premiumExpiry: {
-        type: Date
-    },
     bookList: [{
         type: String
     }],
