@@ -23,7 +23,10 @@ connect.then((db)=>{
 })
 
 app.use(logger('dev'));
-app.use(cors()); // Access-Control-Allow-Origin *
+app.use(cors({
+  origin: ['https://e-library-backend-pi.vercel.app/', 'http://e-library-backend-pi.vercel.app/', 'http://localhost:5173'], // Replace with the actual origin of your client application
+  credentials: true
+}));
 app.options('*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
