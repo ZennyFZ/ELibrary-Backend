@@ -14,7 +14,6 @@ const upload = require('../middleware/upload');
 
 //get book and category
 bookRouter.get("/get-all-books", bookController.getAllBooks);
-bookRouter.get("/:id", bookController.getBookById);
 bookRouter.get("/get-all-categories", bookController.getAllCategories);
 
 //CRUD (admin only)
@@ -28,6 +27,8 @@ bookRouter.get("/filter-book", bookController.filterBookByCategory);
 
 //suggest
 bookRouter.get("/suggest-book", isLogin, bookController.suggestBookForUser);
+
+bookRouter.get("/:id", bookController.getBookById);
 
 module.exports = bookRouter;
 

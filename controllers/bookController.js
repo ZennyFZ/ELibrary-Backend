@@ -1,11 +1,11 @@
 const book = require('../models/book');
 const category = require('../models/category');
-const {getStorage, ref, getDownloadURL, uploadBytesResumable} = require('firebase/storage');
+const { getStorage, ref, getDownloadURL, uploadBytesResumable } = require('firebase/storage');
 const storage = getStorage();
 
 class bookController {
 
-    getAllBooks(req, res) {
+    getAllBooks(req, res, next) {
         book.find({ isDeleted: false }).populate('category').then((books) => {
             if (books) {
                 res.status(200)
@@ -21,7 +21,7 @@ class bookController {
         })
     }
 
-    getBookById(req, res) {
+    getBookById(req, res, next) {
         book.findById(req.params.id).populate('category').then((book) => {
             if (book) {
                 res.status(200)
@@ -42,8 +42,7 @@ class bookController {
         })
     }
 
-    getAllCategories(req, res) {
-        console.log('get all categories');
+    getAllCategories(req, res, next) {
         category.find({}).then((categories) => {
             if (categories) {
                 res.status(200)
@@ -60,50 +59,61 @@ class bookController {
     }
 
     addBook(req, res, next) {
-        const newBook = new book({
-            title: req.body.title,
-            author: req.body.author,
-            publisher: req.body.publisher,
-            publishDate: req.body.publishDate,
-            pages: req.body.pages,
-            language: req.body.language,
-            price: req.body.price,
-            image: req.body.image,
-            description: req.body.description,
-            isDeleted: false,
-            category: req.body.category,
-        })
+        //check duplicated book
+        book.find({ title: req.body.title, publishDate: req.body.publishDate }).then((books) => {
+            if (books.length > 0) {
+                res.status(400)
+                res.json({
+                    "error": "Book already exists"
+                })
+            } else {
+                const newBook = new book({
+                    title: req.body.title,
+                    author: req.body.author,
+                    publisher: req.body.publisher,
+                    publishDate: req.body.publishDate,
+                    pages: req.body.pages,
+                    language: req.body.language,
+                    price: req.body.price,
+                    image: req.body.image,
+                    description: req.body.description,
+                    isDeleted: false,
+                    category: req.body.category,
+                })
 
-        newBook.save().then((book) => {
-            res.status(200)
-            res.json({
-                book: book,
-                message: "Add book successfully"
-            })
-        }).catch((err) => {
-            res.status(500)
-            res.json({
-                "error": "Internal Server Error"
-            }) 
+                newBook.save().then((book) => {
+                    res.status(200)
+                    res.json({
+                        book: book,
+                        message: "Add book successfully"
+                    })
+                }).catch((err) => {
+                    console.log(err);
+                    res.status(500)
+                    res.json({
+                        "error": "Internal Server Error"
+                    })
+                })
+            }
         })
     }
 
     async uploadBookImage(req, res, next) {
         try {
             const storageRef = ref(storage, `files/${req.file.originalname + "       " + Date.now()}`);
-    
+
             // Create file metadata including the content type
             const metadata = {
                 contentType: req.file.mimetype,
             };
-    
+
             // Upload the file in the bucket storage
             const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
             //by using uploadBytesResumable we can control the progress of uploading like pause, resume, cancel
-    
+
             // Grab the public url
             const downloadURL = await getDownloadURL(snapshot.ref);
-    
+
             console.log('File successfully uploaded.');
             return res.json({
                 message: 'file uploaded to firebase storage',
@@ -159,7 +169,7 @@ class bookController {
 
     deleteBook(req, res, next) {
         book.findById(req.params.id).then((book) => {
-            if (book) {
+            if (book && !book.isDeleted) {
                 book.isDeleted = true;
                 book.save().then((book) => {
                     res.status(200)
@@ -187,14 +197,30 @@ class bookController {
     }
 
     filterBookByCategory(req, res, next) {
-        book.find({ category: req.query.category }).populate('category').then((books) => {
-            if (books) {
-                res.status(200)
+        category.find({ name: req.query.category }).then((categoryId) => {
+            if (categoryId && categoryId.length > 0) {
+                book.find({ category: categoryId }).populate('category').then((books) => {
+                    if (books) {
+                        res.status(200)
+                        res.json({
+                            bookList: books
+                        })
+                    }
+                }).catch((err) => {
+                    console.log(err);
+                    res.status(500)
+                    res.json({
+                        "error": "Internal Server Error"
+                    })
+                })
+            }else{
+                res.status(404)
                 res.json({
-                    bookList: books
+                    "error": "No Book in this category"
                 })
             }
         }).catch((err) => {
+            console.log(err);
             res.status(500)
             res.json({
                 "error": "Internal Server Error"
