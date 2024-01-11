@@ -43,6 +43,7 @@ class bookController {
     }
 
     getAllCategories(req, res) {
+        console.log('get all categories');
         category.find({}).then((categories) => {
             if (categories) {
                 res.status(200)

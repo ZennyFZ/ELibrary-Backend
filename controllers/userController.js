@@ -77,6 +77,8 @@ class userController {
     }
 
     getCurrentUser(req, res, next) {
+        const token = req.headers['cookie'].split('=')[1];
+        const decoded = jwt.verify(token, 'elibrary1235');
         user.findOne({ email: decoded.email }).then(user => {
             res.status(200)
             res.json({
@@ -86,6 +88,8 @@ class userController {
     }
 
     UpdateProfile(req, res, next) {
+        const token = req.headers['cookie'].split('=')[1];
+        const decoded = jwt.verify(token, 'elibrary1235');
         user.findOne({ email: decoded.email }).then(user => {
             if (user) {
                 user.name = req.body.name? req.body.name : user.name;
@@ -108,6 +112,8 @@ class userController {
     }
 
     ChangePassword(req, res, next) {
+        const token = req.headers['cookie'].split('=')[1];
+        const decoded = jwt.verify(token, 'elibrary1235');
         user.findOne({ email: decoded.email }).then(user => {
             if (user) {
                 bcrypt.compare(req.body.oldPassword, user.password, (err, result) => {
