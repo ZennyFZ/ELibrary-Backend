@@ -7,6 +7,7 @@ const mongoose  = require('mongoose');
 const cors = require('cors');
 
 const bookRouter = require('./routes/bookRouter');
+const categoryRouter = require('./routes/categoryRouter');
 const userRouter = require('./routes/userRouter');
 const summarizeRouter = require('./routes/summarizeRouter')
 const translateRouter = require('./routes/translateRouter')
@@ -23,7 +24,10 @@ connect.then((db)=>{
 })
 
 app.use(logger('dev'));
-app.use(cors()); // Access-Control-Allow-Origin *
+app.use(cors({
+  origin: ['https://e-library-backend-pi.vercel.app/', 'http://e-library-backend-pi.vercel.app/', 'http://localhost:5173'], // Replace with the actual origin of your client application
+  credentials: true
+}));
 app.options('*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -32,6 +36,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const apiPath = "/api/v1"
 app.use(`${apiPath}/book`, bookRouter);
+app.use(`${apiPath}/category`, categoryRouter);
 app.use(`${apiPath}/user`, userRouter);
 app.use(`${apiPath}/summarize`, summarizeRouter);
 app.use(`${apiPath}/translate`, translateRouter);

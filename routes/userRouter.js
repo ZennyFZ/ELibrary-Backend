@@ -10,5 +10,6 @@ router.put("/update-profile", isLogin, userController.UpdateProfile);
 router.put("/change-password", isLogin, userController.ChangePassword);
 router.get("/get-current-user", isLogin, userController.getCurrentUser);
 router.put("/update-user-role", isLogin, isAdmin, userController.updateUserRole);
+router.get("/get-all-users", isLogin, isAdmin, userController.getAllUsers);
 
 module.exports = router;

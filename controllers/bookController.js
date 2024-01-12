@@ -1,5 +1,7 @@
 const book = require('../models/book');
 const category = require('../models/category');
+const user = require('../models/user');
+const mongoose = require('mongoose');
 const { getStorage, ref, getDownloadURL, uploadBytesResumable } = require('firebase/storage');
 const storage = getStorage();
 
@@ -59,7 +61,6 @@ class bookController {
     }
 
     addBook(req, res, next) {
-        //check duplicated book
         book.find({ title: req.body.title, publishDate: req.body.publishDate }).then((books) => {
             if (books.length > 0) {
                 res.status(400)
@@ -228,8 +229,52 @@ class bookController {
         })
     }
 
-    suggestBookForUser(req, res, next) {
-        res.send('Suggest Book For User');
+    async suggestBookForUser(req, res, next) {
+        try {
+            if(!req.body.id){
+                next(error)
+            }
+            //get book id list from user
+            const bookIdList = await user.findById(req.body.id).then((user) => {
+                if (user) {
+                    return user.bookList.map(id => id = new mongoose.Types.ObjectId(id));
+                }
+            })
+
+            //get book list from book id list
+            const bookList = await book.find({ _id: { $in: bookIdList } }).then((books) => {
+                if (books) {
+                    return books;
+                }
+            })
+
+            //get most common category
+            const categoryList = bookList.map(book => book.category);
+            const categoryCount = {};
+            categoryList.forEach(categoryId => { 
+                categoryCount[categoryId] = categoryCount[categoryId]? categoryCount[categoryId] + 1 : 1;
+            });
+
+            //compare 2 adjacent elements to find the most frequent element
+            const mostCommonCategory = Object.keys(categoryCount).reduce((a, b) => categoryCount[a] > categoryCount[b] ? a : b);
+
+            //get book list from most common category
+            book.find({ category: mostCommonCategory }).then((books) => {
+                if (books) {
+                    res.status(200)
+                    res.json({
+                        bookList: books
+                    })
+                }
+            })
+
+        } catch (error) {
+            console.log(error);
+            res.status(500)
+            res.json({
+                "error": "Internal Server Error"
+            })
+        }
     }
 
 }

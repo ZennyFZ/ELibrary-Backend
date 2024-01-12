@@ -175,6 +175,15 @@ class userController {
             }
         })
     }
+
+    getAllUsers(req, res, next) {
+        user.find().then(users => {
+            res.status(200)
+            res.json({
+                users
+            })
+        })
+    }
 }
 
 module.exports = new userController();

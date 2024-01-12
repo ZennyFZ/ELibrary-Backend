@@ -26,7 +26,7 @@ bookRouter.delete("/delete-book/:id", isLogin, isAdmin, bookController.deleteBoo
 bookRouter.get("/filter-book", bookController.filterBookByCategory);
 
 //suggest
-bookRouter.get("/suggest-book", isLogin, bookController.suggestBookForUser);
+bookRouter.post("/suggest-book", isLogin, bookController.suggestBookForUser);
 
 bookRouter.get("/:id", bookController.getBookById);
 
