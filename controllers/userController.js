@@ -16,7 +16,7 @@ class userController {
                     } else {
                         if (result) {
                             let token = jwt.sign({ email: user.email }, 'elibrary1235')
-                            res.cookie('jwt', token, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true });
+                            res.cookie('jwt', token, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none' });
                             res.status(200)
                             res.json({
                                 message: 'Login Successful!'
