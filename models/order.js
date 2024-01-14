@@ -11,7 +11,7 @@ const orderSchema = new Schema({
         type: Date,
         required: true,
     },
-    totalAmount: {
+    totalPrice: {
         type: Number,
         required: true,
     },
@@ -21,5 +21,5 @@ const orderSchema = new Schema({
     },
 }, {timestamps: true});
 
-const Order = mongoose.model("Order", orderSchema);
+const Order = mongoose.model("orders", orderSchema);
 module.exports = Order;

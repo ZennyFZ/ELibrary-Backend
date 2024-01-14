@@ -4,23 +4,11 @@ const Schema = mongoose.Schema;
 const orderDetailSchema = new Schema({
     order: {
         type: Schema.Types.ObjectId,
-        ref: "Order",
+        ref: "order",
         required: true,
     },
-    book: {
-        type: Schema.Types.ObjectId,
-        ref: "Book",
-        required: true,
-    },
-    quantity: {
-        type: Number,
-        required: true,
-    },
-    price: {
-        type: Number,
-        required: true,
-    },
+    bookList: [{ type: String }]
 }, {timestamps: true});
 
-const OrderDetail = mongoose.model("OrderDetail", orderDetailSchema);
+const OrderDetail = mongoose.model("orderdetails", orderDetailSchema);
 module.exports = OrderDetail;

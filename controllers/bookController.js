@@ -198,7 +198,7 @@ class bookController {
     }
 
     filterBookByCategory(req, res, next) {
-        category.find({ name: req.query.category }).then((categoryId) => {
+        category.find({ name: {$regex: req.query.category, $options: "i"} }).then((categoryId) => {
             if (categoryId && categoryId.length > 0) {
                 book.find({ category: categoryId }).populate('category').then((books) => {
                     if (books) {

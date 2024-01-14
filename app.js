@@ -12,6 +12,7 @@ const userRouter = require('./routes/userRouter');
 const summarizeRouter = require('./routes/summarizeRouter')
 const translateRouter = require('./routes/translateRouter')
 const paymentRouter = require('./routes/paymentRouter')
+const orderRouter = require('./routes/orderRouter')
 
 const app = express();
 require('dotenv').config()
@@ -42,6 +43,7 @@ app.use(`${apiPath}/user`, userRouter);
 app.use(`${apiPath}/summarize`, summarizeRouter);
 app.use(`${apiPath}/translate`, translateRouter);
 app.use(`${apiPath}/payment`, paymentRouter);
+app.use(`${apiPath}/order`, orderRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
