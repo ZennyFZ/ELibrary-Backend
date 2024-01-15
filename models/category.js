@@ -5,9 +5,6 @@ const categorySchema = new Schema({
     name: {
         type: String,
         require: true
-    },
-    isDeleted: {
-        type: Boolean,
     }
 }, {timestamps: true});
 

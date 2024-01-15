@@ -38,9 +38,6 @@ const bookSchema = new Schema({
         type: String, 
         require: true
     },
-    isDeleted: {
-        type: Boolean, 
-    },
     category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "categories",

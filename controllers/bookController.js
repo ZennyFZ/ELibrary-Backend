@@ -8,7 +8,7 @@ const storage = getStorage();
 class bookController {
 
     getAllBooks(req, res, next) {
-        book.find({ isDeleted: false }).populate('category').then((books) => {
+        book.find({}).populate('category').then((books) => {
             if (books) {
                 res.status(200)
                 res.json({
@@ -78,7 +78,6 @@ class bookController {
                     price: req.body.price,
                     image: req.body.image,
                     description: req.body.description,
-                    isDeleted: false,
                     category: req.body.category,
                 })
 
@@ -170,9 +169,8 @@ class bookController {
 
     deleteBook(req, res, next) {
         book.findById(req.params.id).then((book) => {
-            if (book && !book.isDeleted) {
-                book.isDeleted = true;
-                book.save().then((book) => {
+            if (book) {
+                book.deleteOne().then(() => {
                     res.status(200)
                     res.json({
                         message: "Delete book successfully"
@@ -198,7 +196,7 @@ class bookController {
     }
 
     filterBookByCategory(req, res, next) {
-        category.find({ name: {$regex: req.query.category, $options: "i"} }).then((categoryId) => {
+        category.find({ name: {$regex: req.query.category} }).then((categoryId) => {
             if (categoryId && categoryId.length > 0) {
                 book.find({ category: categoryId }).populate('category').then((books) => {
                     if (books) {
