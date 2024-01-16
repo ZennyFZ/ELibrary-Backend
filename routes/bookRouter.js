@@ -19,6 +19,7 @@ bookRouter.get("/get-all-categories", bookController.getAllCategories);
 //CRUD (admin only)
 bookRouter.post("/add-book", isLogin, isAdmin, bookController.addBook);
 bookRouter.post("/upload-book-image", isLogin, isAdmin, upload.single('image') , bookController.uploadBookImage);
+bookRouter.post("/upload-book-file", isLogin, isAdmin, upload.single('file') , bookController.uploadBookFile);
 bookRouter.put("/update-book/:id", isLogin, isAdmin, bookController.updateBook);
 bookRouter.delete("/delete-book/:id", isLogin, isAdmin, bookController.deleteBook);
 

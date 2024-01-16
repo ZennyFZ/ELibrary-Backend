@@ -79,6 +79,7 @@ class bookController {
                     image: req.body.image,
                     description: req.body.description,
                     category: req.body.category,
+                    file: req.body.file
                 })
 
                 newBook.save().then((book) => {
@@ -100,6 +101,33 @@ class bookController {
 
     async uploadBookImage(req, res, next) {
         try {
+            const storageRef = ref(storage, `images/${req.file.originalname + "       " + Date.now()}`);
+
+            // Create file metadata including the content type
+            const metadata = {
+                contentType: req.file.mimetype,
+            };
+
+            // Upload the file in the bucket storage
+            const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
+            //by using uploadBytesResumable we can control the progress of uploading like pause, resume, cancel
+
+            // Grab the public url
+            const downloadURL = await getDownloadURL(snapshot.ref);
+            return res.json({
+                message: 'image uploaded to firebase storage',
+                name: req.file.originalname,
+                type: req.file.mimetype,
+                downloadURL: downloadURL
+            })
+        } catch (error) {
+            console.log(error);
+            return res.status(400).json(error.message)
+        }
+    }
+
+    async uploadBookFile(req, res, next) {
+        try {
             const storageRef = ref(storage, `files/${req.file.originalname + "       " + Date.now()}`);
 
             // Create file metadata including the content type
@@ -113,8 +141,6 @@ class bookController {
 
             // Grab the public url
             const downloadURL = await getDownloadURL(snapshot.ref);
-
-            console.log('File successfully uploaded.');
             return res.json({
                 message: 'file uploaded to firebase storage',
                 name: req.file.originalname,

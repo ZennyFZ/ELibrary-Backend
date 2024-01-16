@@ -43,6 +43,10 @@ const bookSchema = new Schema({
         ref: "categories",
         require: true
     },
+    file: {
+        type: String, 
+        require: true
+    }
 },{ timestamps: true, });
 
 const books = mongoose.model("books", bookSchema);
