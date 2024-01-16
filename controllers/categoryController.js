@@ -1,5 +1,5 @@
+const book = require("../models/book");
 const category = require("../models/category");
-
 class categoryController {
 
     addCategory(req, res, next) {
@@ -10,8 +10,9 @@ class categoryController {
                 message: "Category name is required!"
             })
         }else{
-            category.findOne({ name: { $regex: req.body.name } }).then(result => {
-                if (result) {
+            category.findOne({ name: { $regex: req.body.name, "$options": "i" } }).then(result => {
+                let check =  result?.name.toLocaleLowerCase() === req.body.name.toLocaleLowerCase() 
+                if (result && check) {
                     res.status(400)
                     res.json({
                         message: "Category already exist!"
@@ -37,7 +38,7 @@ class categoryController {
     }
 
     getAllCategories(req, res, next) {
-        category.find({ isDeleted: false }).then(categories => {
+        category.find().then(categories => {
             res.status(200)
             res.json({
                 categories
@@ -72,8 +73,9 @@ class categoryController {
                 message: "Category name is required!"
             })
         }else{
-            category.findOne({ name: { $regex: req.body.name } }).then(result => {
-                if (result) {
+            category.findOne({ name: { $regex: req.body.name, "$options": "i" } }).then(result => {
+                let check =  result?.name.toLocaleLowerCase() === req.body.name.toLocaleLowerCase() 
+                if (result && check) {
                     res.status(400)
                     res.json({
                         message: "Category already exist!"
@@ -98,18 +100,31 @@ class categoryController {
     }
 
     deleteCategory(req, res, next) {
-        category.deleteOne({ _id: req.params.id }).then(result => {
-            res.status(200)
-            res.json({
-                message: "Category deleted successfully!"
+        book.findOne({ category: req.params.id }).then((book) => {
+            if (book) {
+                res.status(400);
+                res.json({
+                  message: "Can not delete category in use!",
+                });
+                return
+            }
+          category
+            .deleteOne({ _id: req.params.id })
+            .then((result) => {
+              res.status(200);
+              res.json({
+                message: "Category deleted successfully!",
+              });
             })
-        }).catch(err => {
-            res.status(500)
-            res.json({
-                message: "Internal Server Error!"
-            })
-        })
-    }
+            .catch((err) => {
+              res.status(500);
+              res.json({
+                message: "Internal Server Error!",
+              });
+            });
+        });
+        return;
+      }
 
 }
 
