@@ -76,6 +76,14 @@ class userController {
         })
     }
 
+    logout(req, res, next) {
+        res.clearCookie('jwt');
+        res.status(200)
+        res.json({
+            message: 'Logout Successful!'
+        })
+    }
+
     getCurrentUser(req, res, next) {
         const token = req.headers['cookie'].split('=')[1];
         const decoded = jwt.verify(token, 'elibrary1235');

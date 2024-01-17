@@ -6,6 +6,7 @@ const isLogin = require("../middleware/loginChecker").isLogin;
 
 router.post("/login", userController.Login);
 router.post("/register", userController.Register);
+router.get("/logout", userController.logout);
 router.put("/update-profile", isLogin, userController.UpdateProfile);
 router.put("/change-password", isLogin, userController.ChangePassword);
 router.get("/get-current-user", isLogin, userController.getCurrentUser);
