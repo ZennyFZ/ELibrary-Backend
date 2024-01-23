@@ -1,23 +1,60 @@
 const order = require("../models/order");
 const orderDetail = require("../models/orderDetail");
+const book = require("../models/book");
 
 class Order {
 
     createOrder(req, res, next) {
-        console.log("createOrder");
+        let orderDetailArray = [];
+        const bookListIdArray = req.body.bookList;
+
+        // Create order
+        const newOrder = new order({
+            user: req.body.userId,
+            orderDate: new Date(),
+            totalPrice: req.body.totalPrice,
+            paymentMethod: req.body.paymentMethod
+        });
+
+        newOrder.save().then(order => {
+            // Fetch all books concurrently and wait for all results
+            Promise.all(bookListIdArray.map(bookId => book.findById(bookId))).then(books => {
+                orderDetailArray.push(...books);
+                const newOrderDetail = new orderDetail({
+                    order: order._id,
+                    bookList: orderDetailArray
+                });
+
+                // Create order detail after books are retrieved
+                newOrderDetail.save().then(orderDetail => {
+                    res.status = 200;
+                    res.json("Order created successfully");
+                }).catch(err => {
+                    res.status = 500;
+                    res.json("Internal Server Error");
+                });
+            }).catch(err => {
+                res.status = 500;
+                res.json("Internal Server Error");
+            });
+        }).catch(err => {
+            res.status = 500;
+            res.json("Internal Server Error");
+        });
     }
 
     getAllOrders(req, res, next) {
         order.find({}).populate('user').then((orders) => {
             res.json(orders);
         }).catch((err) => {
+            console.log(err);
             res.status = 500;
             res.json("Internal Server Error");
         });
     }
 
     getOrderByUserId(req, res, next) {
-        order.find({user: req.body.userId}).populate('user').then((orders) => {
+        order.find({ user: req.params.id }).populate('user').then((orders) => {
             res.status = 200
             res.json(orders);
         }).catch((err) => {
@@ -27,7 +64,7 @@ class Order {
     }
 
     getOrderDetailByOrderId(req, res, next) {
-        orderDetail.find({order: req.params.id }).then((orderDetails) => {
+        orderDetail.find({ order: req.params.id }).then((orderDetails) => {
             res.status = 200;
             res.json(orderDetails);
         }).catch((err) => {

@@ -1,4 +1,5 @@
 const user = require('../models/user');
+const book = require('../models/book');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -155,6 +156,24 @@ class userController {
                             })
                         }
                     }
+                })
+            } else {
+                res.status(404)
+                res.json({
+                    message: 'User not found!'
+                })
+            }
+        })
+    }
+
+    getBooksByUserId(req, res, next) {
+        user.findOne({ _id: req.params.id }).populate('bookList').then(user => {
+            if (user) {
+                book.find({ _id: { $in: user.bookList } }).then(books => {
+                    res.status(200)
+                    res.json({
+                        books
+                    })
                 })
             } else {
                 res.status(404)

@@ -15,6 +15,7 @@ const upload = require('../middleware/upload');
 //get book and category
 bookRouter.get("/get-all-books", bookController.getAllBooks);
 bookRouter.get("/get-all-categories", bookController.getAllCategories);
+bookRouter.get("/get-pdf/:id", isLogin, bookController.getBookFile); // chưa có isOwned
 
 //CRUD (admin only)
 bookRouter.post("/add-book", isLogin, isAdmin, bookController.addBook);
@@ -25,6 +26,7 @@ bookRouter.delete("/delete-book/:id", isLogin, isAdmin, bookController.deleteBoo
 
 //filter
 bookRouter.get("/filter-book", bookController.filterBookByCategory);
+bookRouter.get("/search", bookController.searchBookByName);
 
 //suggest
 bookRouter.post("/suggest-book", isLogin, bookController.suggestBookForUser);

@@ -253,6 +253,49 @@ class bookController {
         })
     }
 
+    searchBookByName(req, res, next) {
+        book.find({ title: {$regex: req.query.name, "$options": "i"} }).populate('category').then((books) => {
+            if (books) {
+                res.status(200)
+                res.json({
+                    bookList: books
+                })
+            }else{
+                res.status(404)
+                res.json({
+                    "error": "No Book Found"
+                })
+            }
+        }).catch((err) => {
+            console.log(err);
+            res.status(500)
+            res.json({
+                "error": "Internal Server Error"
+            })
+        })
+    }
+
+    getBookFile(req, res, next) {
+        book.findById(req.params.id).then((book) => {
+            if (book) {
+                res.status(200)
+                res.json({
+                    file: book.file
+                })
+            } else {
+                res.status(404)
+                res.json({
+                    "error": "Book Not Found"
+                })
+            }
+        }).catch((err) => {
+            res.status(500)
+            res.json({
+                "error": "Internal Server Error"
+            })
+        })
+    }
+
     async suggestBookForUser(req, res, next) {
         try {
             if(!req.body.id){
