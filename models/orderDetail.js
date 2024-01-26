@@ -7,7 +7,7 @@ const orderDetailSchema = new Schema({
         ref: "order",
         required: true,
     },
-    bookList: [{ type: String }]
+    bookList: [{}]
 }, {timestamps: true});
 
 const OrderDetail = mongoose.model("orderdetails", orderDetailSchema);
