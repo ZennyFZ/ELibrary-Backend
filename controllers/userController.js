@@ -167,13 +167,33 @@ class userController {
     }
 
     getBooksByUserId(req, res, next) {
-        user.findOne({ _id: req.params.id }).populate('bookList').then(user => {
+        user.findOne({ _id: req.params.id }).then(user => {
             if (user) {
-                book.find({ _id: { $in: user.bookList } }).then(books => {
-                    res.status(200)
-                    res.json({
-                        books
-                    })
+                res.status(200)
+                res.json({
+                    bookList: user.bookList
+                })
+            } else {
+                res.status(404)
+                res.json({
+                    message: 'User not found!'
+                })
+            }
+        })
+    }
+
+    isExistInBookList(req, res, next) {
+        user.findOne({ _id: req.params.id }).then(user => {
+            if (user) {
+                let isExist = false;
+                user.bookList.forEach(book => {
+                    if (book._id == req.body.bookId) {
+                        isExist = true;
+                    }
+                })
+                res.status(200)
+                res.json({
+                    isExist
                 })
             } else {
                 res.status(404)

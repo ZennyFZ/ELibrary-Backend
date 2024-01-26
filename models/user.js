@@ -26,9 +26,7 @@ const userSchema = new Schema({
         type: String,
         require: true
     },
-    bookList: [{
-        type: String
-    }],
+    bookList: [{}],
 }, {timestamps: true});
 
 const Users = mongoose.model("users", userSchema);

@@ -1,6 +1,7 @@
 const order = require("../models/order");
 const orderDetail = require("../models/orderDetail");
 const book = require("../models/book");
+const user = require("../models/user");
 
 class Order {
 
@@ -26,9 +27,32 @@ class Order {
                 });
 
                 // Create order detail after books are retrieved
-                newOrderDetail.save().then(orderDetail => {
-                    res.status = 200;
-                    res.json("Order created successfully");
+                newOrderDetail.save()
+
+                // Update new book in booklist of user
+                user.findById(req.body.userId).then(user => {
+                    //check if that book is already in user's booklist
+                    books.forEach(book => {
+                        let isExist = false;
+                        user.bookList.forEach(userBook => {
+                            if (userBook._id.toString() === book._id.toString()) {
+                                isExist = true;
+                            }
+                        });
+                        if (!isExist) {
+                            user.bookList.push(book);
+                        }else{
+                            res.status = 400;
+                            res.json("Book already exists in your booklist");
+                        }
+                    });
+                    user.save().then(user => {
+                        res.status = 200;
+                        res.json("Order successfully created");
+                    }).catch(err => {
+                        res.status = 500;
+                        res.json("Internal Server Error");
+                    });
                 }).catch(err => {
                     res.status = 500;
                     res.json("Internal Server Error");

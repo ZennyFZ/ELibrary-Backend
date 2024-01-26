@@ -222,7 +222,7 @@ class bookController {
     }
 
     filterBookByCategory(req, res, next) {
-        category.find({ name: {$regex: req.query.category} }).then((categoryId) => {
+        category.find({ name: { $regex: req.query.category } }).then((categoryId) => {
             if (categoryId && categoryId.length > 0) {
                 book.find({ category: categoryId }).populate('category').then((books) => {
                     if (books) {
@@ -238,7 +238,7 @@ class bookController {
                         "error": "Internal Server Error"
                     })
                 })
-            }else{
+            } else {
                 res.status(404)
                 res.json({
                     "error": "No Book in this category"
@@ -254,13 +254,13 @@ class bookController {
     }
 
     searchBookByName(req, res, next) {
-        book.find({ title: {$regex: req.query.name, "$options": "i"} }).populate('category').then((books) => {
+        book.find({ title: { $regex: req.query.name, "$options": "i" } }).populate('category').then((books) => {
             if (books) {
                 res.status(200)
                 res.json({
                     bookList: books
                 })
-            }else{
+            } else {
                 res.status(404)
                 res.json({
                     "error": "No Book Found"
@@ -298,28 +298,20 @@ class bookController {
 
     async suggestBookForUser(req, res, next) {
         try {
-            if(!req.body.id){
+            if (!req.body.id) {
                 next(error)
             }
-            //get book id list from user
-            const bookIdList = await user.findById(req.body.id).then((user) => {
-                if (user) {
-                    return user.bookList.map(id => id = new mongoose.Types.ObjectId(id));
-                }
+
+            //get bookList of user
+            const bookList = await user.findById(req.body.id).then((user) => {
+                return user.bookList;
             })
 
-            //get book list from book id list
-            const bookList = await book.find({ _id: { $in: bookIdList } }).then((books) => {
-                if (books) {
-                    return books;
-                }
-            })
-
-            //get most common category
+            //find most common category in bookList
             const categoryList = bookList.map(book => book.category);
             const categoryCount = {};
-            categoryList.forEach(categoryId => { 
-                categoryCount[categoryId] = categoryCount[categoryId]? categoryCount[categoryId] + 1 : 1;
+            categoryList.forEach(categoryId => {
+                categoryCount[categoryId] = categoryCount[categoryId] ? categoryCount[categoryId] + 1 : 1;
             });
 
             //compare 2 adjacent elements to find the most frequent element

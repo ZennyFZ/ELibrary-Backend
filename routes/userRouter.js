@@ -12,6 +12,7 @@ userRouter.put("/change-password", isLogin, userController.ChangePassword);
 userRouter.get("/get-current-user", isLogin, userController.getCurrentUser);
 userRouter.put("/update-user-role", isLogin, isAdmin, userController.updateUserRole);
 userRouter.get("/get-all-users", isLogin, isAdmin, userController.getAllUsers);
+userRouter.post("/checkExistBook/:id", isLogin, userController.isExistInBookList);
 userRouter.get("/get-books/:id", isLogin, userController.getBooksByUserId);
 
 module.exports = userRouter;
