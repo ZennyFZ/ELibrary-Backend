@@ -7,10 +7,11 @@ class summarizeController {
     async summarizeTheText(req, res) {
         const googleBard = new GoogleGenerativeAI(process.env.GOOGLEBARD_KEY);
         const model = googleBard.getGenerativeModel({ model: "gemini-pro"});
-        const prompt = `Tóm tắt nội dung của cuốn sách ${req.body.text}, nếu sách có nhiều chương thì hãy tóm tắt nội dung từng chương một một cách cụ thể.`
+        const prompt = `Tóm tắt nội dung của cuốn sách ${req.body.text}, nếu sách có nhiều chương thì hãy tóm tắt nội dung từng chương một một cách cụ thể (dưới dạng markdown)`
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        const text = response.text();
+        //replace all \n to <br>
+        const text = response.text().replace(/\n/g, "<br>");
         if (text) {
             res.status(200);
             res.json({
