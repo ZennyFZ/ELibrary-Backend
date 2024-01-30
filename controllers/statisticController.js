@@ -39,11 +39,12 @@ class statisticController {
     }
 
     getTotalRevenue(req, res, next) {
+        const year = req.query.year;
         let totalRevenueArray = [0,0,0,0,0,0,0,0,0,0,0,0];
         order.find({}).then((orderDataArray) => {
             orderDataArray.forEach(orderData => {
                 for (let i = 0; i < totalRevenueArray.length; i++) {
-                    if (orderData.orderDate.getMonth() == i) {
+                    if (orderData.orderDate.getMonth() == i && orderData.orderDate.getFullYear() == year){
                         totalRevenueArray[i] += orderData.totalPrice
                     }
                 }
