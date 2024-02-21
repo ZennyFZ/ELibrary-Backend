@@ -2,10 +2,14 @@ const user = require('../models/user');
 const book = require('../models/book');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const UAParser = require('ua-parser-js');
 
 class userController {
 
     Login(req, res, next) {
+        let userAgent = req.headers["user-agent"]
+        let parser = new UAParser(userAgent)
+        let deviceType = parser.getDevice().type
         user.findOne({ email: req.body.email }).then(user => {
             if (user) {
                 bcrypt.compare(req.body.password, user.password, (err, result) => {
@@ -17,11 +21,18 @@ class userController {
                     } else {
                         if (result) {
                             let token = jwt.sign({ email: user.email }, 'elibrary1235')
-                            res.cookie('jwt', token, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true, secure: true , sameSite: 'none' });
-                            res.status(200)
-                            res.json({
-                                message: 'Login Successful!'
-                            })
+                            if(deviceType === 'mobile') {
+                                res.status = 200
+                                res.json({
+                                    token
+                                })
+                            }else{
+                                res.cookie('jwt', token, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true, secure: true , sameSite: 'none' });
+                                res.status(200)
+                                res.json({
+                                    message: 'Login Successful!'
+                                })
+                            }
                         } else {
                             res.status(404)
                             res.json({
@@ -89,6 +100,7 @@ class userController {
         const token = req.headers['cookie'].split('=')[1];
         const decoded = jwt.verify(token, 'elibrary1235');
         user.findOne({ email: decoded.email }).then(user => {
+            user.password = undefined;
             res.status(200)
             res.json({
                 user

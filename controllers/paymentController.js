@@ -1,4 +1,5 @@
 const moment = require('moment');
+const Stripe = require('stripe')
 const config = require('../config/vnpay');
 
 class paymentController {
@@ -64,6 +65,28 @@ class paymentController {
             res.status(200)
             res.json({
                 vnpUrl
+            })
+        } else {
+            res.status(500)
+            res.json({
+                message: "Internal server error"
+            })
+        }
+    }
+
+    async paymentByGooglePay(req, res, next) {
+        const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: req.body.amount,
+            currency: 'vnd',
+            payment_method_types: ['card'],
+        });
+
+        const clientSecret = paymentIntent.client_secret;
+        if (clientSecret) {
+            res.status(200)
+            res.json({
+                clientSecret
             })
         } else {
             res.status(500)
