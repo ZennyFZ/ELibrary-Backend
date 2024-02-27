@@ -80,6 +80,9 @@ class Order {
     getOrderByUserId(req, res, next) {
         order.find({ user: req.params.id }).populate('user').then((orders) => {
             res.status = 200
+            orders.forEach(order => {
+                order.user.password = undefined;
+            });
             res.json(orders);
         }).catch((err) => {
             res.status = 500;
