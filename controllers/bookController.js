@@ -307,6 +307,13 @@ class bookController {
                 return user.bookList;
             })
 
+            if (bookList.length === 0) {
+                res.status(200)
+                res.json({
+                    "message": "No book in user's list"
+                })
+            }
+
             //find most common category in bookList
             const categoryList = bookList.map(book => book.category);
             const categoryCount = {};
