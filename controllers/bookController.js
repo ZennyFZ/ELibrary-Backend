@@ -128,7 +128,7 @@ class bookController {
 
     async uploadBookFile(req, res, next) {
         try {
-            const storageRef = ref(storage, `files/${req.file.originalname + "       " + Date.now()}`);
+            const storageRef = ref(storage, `${req.file.originalname + "       " + Date.now()}`);
 
             // Create file metadata including the content type
             const metadata = {
