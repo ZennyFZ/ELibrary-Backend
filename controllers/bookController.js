@@ -310,29 +310,29 @@ class bookController {
             if (bookList.length === 0) {
                 res.status(200)
                 res.json({
-                    "message": "No book in user's list"
+                    bookList: []
+                })
+            } else {
+                //find most common category in bookList
+                const categoryList = bookList.map(book => book.category);
+                const categoryCount = {};
+                categoryList.forEach(categoryId => {
+                    categoryCount[categoryId] = categoryCount[categoryId] ? categoryCount[categoryId] + 1 : 1;
+                });
+
+                //compare 2 adjacent elements to find the most frequent element
+                const mostCommonCategory = Object.keys(categoryCount).reduce((a, b) => categoryCount[a] > categoryCount[b] ? a : b);
+
+                //get book list from most common category
+                book.find({ category: mostCommonCategory }).then((books) => {
+                    if (books) {
+                        res.status(200)
+                        res.json({
+                            bookList: books
+                        })
+                    }
                 })
             }
-
-            //find most common category in bookList
-            const categoryList = bookList.map(book => book.category);
-            const categoryCount = {};
-            categoryList.forEach(categoryId => {
-                categoryCount[categoryId] = categoryCount[categoryId] ? categoryCount[categoryId] + 1 : 1;
-            });
-
-            //compare 2 adjacent elements to find the most frequent element
-            const mostCommonCategory = Object.keys(categoryCount).reduce((a, b) => categoryCount[a] > categoryCount[b] ? a : b);
-
-            //get book list from most common category
-            book.find({ category: mostCommonCategory }).then((books) => {
-                if (books) {
-                    res.status(200)
-                    res.json({
-                        bookList: books
-                    })
-                }
-            })
 
         } catch (error) {
             console.log(error);
