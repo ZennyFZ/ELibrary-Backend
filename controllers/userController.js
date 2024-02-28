@@ -24,7 +24,8 @@ class userController {
                             if(deviceType === 'mobile') {
                                 res.status = 200
                                 res.json({
-                                    token
+                                    token,
+                                    userId: user._id
                                 })
                             }else{
                                 res.cookie('jwt', token, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true, secure: true , sameSite: 'none' });
