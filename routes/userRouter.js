@@ -14,5 +14,6 @@ userRouter.put("/update-user-role", isLogin, isAdmin, userController.updateUserR
 userRouter.get("/get-all-users", isLogin, isAdmin, userController.getAllUsers);
 userRouter.post("/checkExistBook/:id", isLogin, userController.isExistInBookList);
 userRouter.get("/get-books/:id", isLogin, userController.getBooksByUserId);
+userRouter.post("/write-log", isLogin, userController.writeLog);
 
 module.exports = userRouter;

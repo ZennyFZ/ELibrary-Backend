@@ -1,8 +1,8 @@
 const user = require('../models/user');
-const book = require('../models/book');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const UAParser = require('ua-parser-js');
+const log = require('../models/log');
 
 class userController {
 
@@ -242,6 +242,18 @@ class userController {
             res.json({
                 users
             })
+        })
+    }
+
+    writeLog(req, res, next) {
+        log.create({ data: req.body.log }).then(log => {
+            res.status(200)
+            res.json({
+                message: 'Write log successful!',
+                logId: log._id
+            })
+        }).catch(err => {
+            writeLog(req, res, next);
         })
     }
 }
