@@ -77,6 +77,35 @@ class paymentController {
         }
     }
 
+    checkPaymentForVNPay(req, res, next) {
+        // var vnp_Params = req.query;
+
+        // var secureHash = vnp_Params['vnp_SecureHash'];
+    
+        // delete vnp_Params['vnp_SecureHash'];
+        // delete vnp_Params['vnp_SecureHashType'];
+    
+        // vnp_Params = sortObject(vnp_Params);
+    
+        // var config = require('config');
+        // var tmnCode = config.get('vnp_TmnCode');
+        // var secretKey = config.get('vnp_HashSecret');
+    
+        // var querystring = require('qs');
+        // var signData = querystring.stringify(vnp_Params, { encode: false });
+        // var crypto = require("crypto");     
+        // var hmac = crypto.createHmac("sha512", secretKey);
+        // var signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");     
+    
+        // if(secureHash === signed){
+        //     //Kiem tra xem du lieu trong db co hop le hay khong va thong bao ket qua
+    
+        //     res.render('success', {code: vnp_Params['vnp_ResponseCode']})
+        // } else{
+        //     res.render('success', {code: '97'})
+        // }
+    }
+
     async paymentByGooglePay(req, res, next) {
         const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
         const paymentIntent = await stripe.paymentIntents.create({
@@ -160,6 +189,10 @@ class paymentController {
         
     }
 
+    checkPaymentForMomo(req, res, next) {
+
+    }
+
     paymentByZaloPay(req, res, next) {
         const apiType = req.body.apiType;
 
@@ -197,6 +230,26 @@ class paymentController {
         order.mac = CryptoJS.HmacSHA256(data, config.key1).toString();
 
         axios.post(config.endpoint, null, { params: order }).then(response => {
+            res.status(200)
+            res.json({
+                data: response.data
+            })
+        }).catch(err => console.log(err));
+    }
+
+    checkPaymentForZaloPay(req, res, next) {
+        //https://docs.zalopay.vn/v1/general/overview.html#tao-don-hang_thong-tin-don-hang_tao-thong-tin-chung-thuc
+        const config = {
+            appid: "554",
+            key1: "8NdU5pG5R2spGHGhyO99HN1OhD8IQJBn",
+            key2: "uUfsWgfLkRLzq6W2uNXTCxrfxs51auny",
+            endpoint: "https://sandbox.zalopay.com.vn/v001/tpe/getstatusbyapptransid"
+        };
+        const apptransid = req.body.apptransid;
+        let data = `${config.appid}|${apptransid}|${config.key1}`;
+        let mac = CryptoJS.HmacSHA256(data, config.key1).toString();
+
+        axios.post(config.endpoint, { appid: config.appid, apptransid, mac }).then(response => {
             res.status(200)
             res.json({
                 data: response.data
