@@ -78,32 +78,35 @@ class paymentController {
     }
 
     checkPaymentForVNPay(req, res, next) {
-        // var vnp_Params = req.query;
+        console.log(req.query)
+        var vnp_Params = req.query;
 
-        // var secureHash = vnp_Params['vnp_SecureHash'];
+        var secureHash = vnp_Params['vnp_SecureHash'];
+        console.log(secureHash)
     
-        // delete vnp_Params['vnp_SecureHash'];
-        // delete vnp_Params['vnp_SecureHashType'];
+        delete vnp_Params['vnp_SecureHash'];
+        delete vnp_Params['vnp_SecureHashType'];
     
-        // vnp_Params = sortObject(vnp_Params);
+        vnp_Params = sortObject(vnp_Params);
     
-        // var config = require('config');
-        // var tmnCode = config.get('vnp_TmnCode');
-        // var secretKey = config.get('vnp_HashSecret');
+        var config = require('../config/vnpay');
+        var tmnCode = config.vnpayConfig.tmnCode
+        var secretKey = config.vnpayConfig.secretKey;
     
-        // var querystring = require('qs');
-        // var signData = querystring.stringify(vnp_Params, { encode: false });
-        // var crypto = require("crypto");     
-        // var hmac = crypto.createHmac("sha512", secretKey);
-        // var signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");     
+        var querystring = require('qs');
+        var signData = querystring.stringify(vnp_Params, { encode: false });
+        var crypto = require("crypto");     
+        var hmac = crypto.createHmac("sha512", secretKey);
+        var signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex");     
     
-        // if(secureHash === signed){
-        //     //Kiem tra xem du lieu trong db co hop le hay khong va thong bao ket qua
-    
-        //     res.render('success', {code: vnp_Params['vnp_ResponseCode']})
-        // } else{
-        //     res.render('success', {code: '97'})
-        // }
+        if(secureHash === signed){
+            var orderId = vnp_Params['vnp_TxnRef'];
+            var rspCode = vnp_Params['vnp_ResponseCode'];
+            res.status(200).json({RspCode: '00', Message: 'success'})
+        }
+        else {
+            res.status(200).json({RspCode: '97', Message: 'Fail checksum'})
+        }
     }
 
     async paymentByGooglePay(req, res, next) {
@@ -190,7 +193,42 @@ class paymentController {
     }
 
     checkPaymentForMomo(req, res, next) {
+        //https://developers.momo.vn/v3/vi/docs/payment/api/payment-api/query
+        var partnerCode = "MOMO";
+        var accessKey = "F8BBA842ECF85";
+        var secretkey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
+        var requestId = partnerCode + new Date().getTime();
+        var orderId = req.body.orderId;
 
+        var rawSignature = `accessKey=${accessKey}&orderId=${orderId}&partnerCode=${partnerCode}&requestId=${requestId}`;
+        var signature = crypto.createHmac('sha256', secretkey).update(rawSignature).digest('hex');
+
+        const requestBody = {
+            partnerCode: partnerCode,
+            requestId: requestId,
+            orderId: orderId,
+            signature: signature,
+            lang: 'en'
+        };
+
+        const options = {
+            method: 'post',
+            url: 'https://test-payment.momo.vn/v2/gateway/api/query',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            data: requestBody
+        };
+
+        axios(options).then(response => {
+            res.status(200)
+            res.json({
+                data: response.data
+            })
+        }).catch(err => {
+            console.log(err)
+            res.status(500).json({ message: 'Error sending Momo request' });
+        });
     }
 
     paymentByZaloPay(req, res, next) {
