@@ -168,6 +168,8 @@ class bookController {
                 book.category = req.body.category ? req.body.category : book.category;
 
                 book.save().then((book) => {
+                    return book.populate('category').execPopulate();
+                }).then((book) => {
                     res.status(200)
                     res.json({
                         book: book,
