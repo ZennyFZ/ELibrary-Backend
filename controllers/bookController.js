@@ -166,6 +166,7 @@ class bookController {
                 book.image = req.body.image ? req.body.image : book.image;
                 book.description = req.body.description ? req.body.description : book.description;
                 book.category = req.body.category ? req.body.category : book.category;
+                book.file = req.body.file ? req.body.file : book.file;
 
                 book.save().then((book) => {
                     res.status(200)
