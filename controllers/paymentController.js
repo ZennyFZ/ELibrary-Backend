@@ -183,7 +183,8 @@ class paymentController {
         axios(options).then(response => {
             res.status(200)
             res.json({
-                data: response.data.payUrl
+                payUrl: response.data.payUrl,
+                orderId: orderId
             })
         }).catch(err => {
             console.log(err)
