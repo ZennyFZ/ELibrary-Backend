@@ -28,7 +28,7 @@ connect.then((db)=>{
 
 app.use(logger('dev'));
 app.use(cors({
-  origin: ['https://e-library-frontend-delta.vercel.app', 'http://e-library-frontend-delta.vercel.app', 'http://localhost:5173'], // Replace with the actual origin of your client application
+  origin: ['https://e-library-frontend-delta.vercel.app', 'http://e-library-frontend-delta.vercel.app', 'http://localhost:5173', 'https://elibrary.io.vn/', 'http://elibrary.io.vn/'], // Replace with the actual origin of your client application
   credentials: true
 }));
 app.options('*', cors());
