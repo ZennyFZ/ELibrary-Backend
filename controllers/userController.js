@@ -25,7 +25,8 @@ class userController {
                                 res.status = 200
                                 res.json({
                                     token,
-                                    userId: user._id
+                                    userId: user._id,
+                                    role: user.role
                                 })
                             }else{
                                 res.cookie('jwt', token, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true, secure: true , sameSite: 'none' });
