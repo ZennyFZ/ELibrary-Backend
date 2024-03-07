@@ -8,15 +8,14 @@ class OrderController {
 
     async createOrder(req, res, next) {
         try {
-            let orderDetailArray = [];
-            const bookListIdArray = req.body.bookList;
+            const bookListArray = req.body.bookList;
             const userId = req.body.userId;
 
             //check if the user has the book in their book list
             const checkBookExist = await user.findById(userId).then((user) => {
-                for (let i = 0; i < bookListIdArray.length; i++) {
+                for (let i = 0; i < bookListArray.length; i++) {
                     for (let j = 0; j < user.bookList.length; j++) {
-                        if (bookListIdArray[i] == user.bookList[j]._id) {
+                        if (bookListArray[i]._id == user.bookList[j]._id) {
                             return true;
                         }
                     }
@@ -26,13 +25,6 @@ class OrderController {
             if (checkBookExist) {
                 return res.status(500).json("The user already has the book in their library")
             }
-
-            //find books by bookIdListArray
-            bookListIdArray.map((bookId) => {
-                book.findById(bookId).then((book) => {
-                    orderDetailArray.push(book);
-                });
-            });
 
             //create order
             const newOrder = new order({
@@ -47,14 +39,13 @@ class OrderController {
                     //create order detail
                     const newOrderDetail = new orderDetail({
                         order: order._id,
-                        bookList: orderDetailArray
+                        bookList: bookListArray
                     });
                     newOrderDetail.save()
 
                     //update user book list
                     user.findById(userId).then((user) => {
-                        console.log(orderDetailArray)
-                        user.bookList.push(...orderDetailArray);
+                        user.bookList.push(...bookListArray);
                         user.save().then((user) => {
                             if (user) {
                                 res.status(200).json("Order successfully created")
