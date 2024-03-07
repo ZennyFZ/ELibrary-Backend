@@ -2,69 +2,71 @@ const order = require("../models/order");
 const orderDetail = require("../models/orderDetail");
 const book = require("../models/book");
 const user = require("../models/user");
+const { default: mongoose } = require("mongoose");
 
-class Order {
+class OrderController {
 
-    createOrder(req, res, next) {
-        let orderDetailArray = [];
-        const bookListIdArray = req.body.bookList;
+    async createOrder(req, res, next) {
+        try {
+            let orderDetailArray = [];
+            const bookListIdArray = req.body.bookList;
+            const userId = req.body.userId;
 
-        // Create order
-        const newOrder = new order({
-            user: req.body.userId,
-            orderDate: new Date(),
-            totalPrice: req.body.totalPrice,
-            paymentMethod: req.body.paymentMethod
-        });
+            //check if the user has the book in their book list
+            const checkBookExist = await user.findById(userId).then((user) => {
+                for (let i = 0; i < bookListIdArray.length; i++) {
+                    for (let j = 0; j < user.bookList.length; j++) {
+                        if (bookListIdArray[i] == user.bookList[j]._id) {
+                            return true;
+                        }
+                    }
+                }
+            })
 
-        newOrder.save().then(order => {
-            // Fetch all books concurrently and wait for all results
-            Promise.all(bookListIdArray.map(bookId => book.findById(bookId))).then(books => {
-                orderDetailArray.push(...books);
-                const newOrderDetail = new orderDetail({
-                    order: order._id,
-                    bookList: orderDetailArray
+            if (checkBookExist) {
+                return res.status(500).json("The user already has the book in their library")
+            }
+
+            //find books by bookIdListArray
+            bookListIdArray.map((bookId) => {
+                book.findById(bookId).then((book) => {
+                    orderDetailArray.push(book);
                 });
+            });
 
-                // Create order detail after books are retrieved
-                newOrderDetail.save()
+            //create order
+            const newOrder = new order({
+                user: userId,
+                orderDate: new Date(),
+                totalPrice: req.body.totalPrice,
+                paymentMethod: req.body.paymentMethod
+            });
 
-                // Update new book in booklist of user
-                user.findById(req.body.userId).then(user => {
-                    //check if that book is already in user's booklist
-                    books.forEach(book => {
-                        let isExist = false;
-                        user.bookList.forEach(userBook => {
-                            if (userBook._id.toString() === book._id.toString()) {
-                                isExist = true;
+            newOrder.save().then((order) => {
+                if (order) {
+                    //create order detail
+                    const newOrderDetail = new orderDetail({
+                        order: order._id,
+                        bookList: orderDetailArray
+                    });
+                    newOrderDetail.save()
+
+                    //update user book list
+                    user.findById(userId).then((user) => {
+                        console.log(orderDetailArray)
+                        user.bookList.push(...orderDetailArray);
+                        user.save().then((user) => {
+                            if (user) {
+                                res.status(200).json("Order successfully created")
                             }
                         });
-                        if (!isExist) {
-                            user.bookList.push(book);
-                        }else{
-                            res.status = 400;
-                            res.json("Book already exists in your booklist");
-                        }
                     });
-                    user.save().then(user => {
-                        res.status = 200;
-                        res.json("Order successfully created");
-                    }).catch(err => {
-                        res.status = 500;
-                        res.json("Internal Server Error");
-                    });
-                }).catch(err => {
-                    res.status = 500;
-                    res.json("Internal Server Error");
-                });
-            }).catch(err => {
-                res.status = 500;
-                res.json("Internal Server Error");
-            });
-        }).catch(err => {
-            res.status = 500;
-            res.json("Internal Server Error");
-        });
+                }
+            })
+
+        } catch (err) {
+            res.status(500).json(`Internal Server Error ${err}`)
+        }
     }
 
     getAllOrders(req, res, next) {
@@ -102,4 +104,4 @@ class Order {
 
 }
 
-module.exports = new Order();
+module.exports = new OrderController();
