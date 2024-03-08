@@ -317,8 +317,8 @@ class bookController {
                 //find most common category in bookList
                 const categoryList = bookList.map(book => book.category);
                 const categoryCount = {};
-                categoryList.forEach(categoryId => {
-                    categoryCount[categoryId] = categoryCount[categoryId] ? categoryCount[categoryId] + 1 : 1;
+                categoryList.forEach(categoryObject => {
+                    categoryCount[categoryObject._id] = categoryCount[categoryObject._id] ? categoryCount[categoryObject._id] + 1 : 1;
                 });
 
                 //compare 2 adjacent elements to find the most frequent element
