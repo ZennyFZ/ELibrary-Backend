@@ -10,6 +10,7 @@ const querystring = require('qs');
 class paymentController {
 
     payment(req, res, next) { // Payment by VNPAY
+        let mobileUri = req.body.mobileUri;
         let date = new Date();
         let createDate = moment(date).format('YYYYMMDDHHmmss');
 
@@ -21,7 +22,7 @@ class paymentController {
         let tmnCode = config.vnpayConfig.tmnCode;
         let secretKey = config.vnpayConfig.secretKey;
         let vnpUrl = config.vnpayConfig.vnpUrl;
-        let returnUrl = config.vnpayConfig.returnUrl;
+        let returnUrl = mobileUri? mobileUri : config.vnpayConfig.returnUrl;
         let orderId = moment(date).format('DDHHmmss');
         let amount = req.body.amount;
         if (amount < 5000 || amount > 1000000000) {
@@ -142,8 +143,8 @@ class paymentController {
         var requestId = partnerCode + new Date().getTime();
         var orderId = requestId;
         var orderInfo = "Mua ebook từ E-Library";
-        var redirectUrl = apiType === "Website" ? "https://e-library-frontend-delta.vercel.app/" : "localhost:5173";
-        var ipnUrl = apiType === "Website" ? "https://e-library-frontend-delta.vercel.app/" : "localhost:5173";
+        var redirectUrl = apiType === "Website" ? "https://e-library-frontend-delta.vercel.app/" : apiType === "Local" ? "localhost:5173" : apiType;
+        var ipnUrl = apiType === "Website" ? "https://e-library-frontend-delta.vercel.app/" : apiType === "Local" ? "localhost:5173" : apiType;
         var amount = money;
         var requestType = "captureWallet"
         var extraData = "";
@@ -244,7 +245,7 @@ class paymentController {
 
         const embeddata = {
             merchantinfo: "E-Library",
-            redirecturl: apiType === "Website" ? "https://e-library-frontend-delta.vercel.app/" : "localhost:5173",
+            redirecturl: apiType === "Website" ? "https://e-library-frontend-delta.vercel.app/" : apiType === "Local" ? "localhost:5173" : apiType
         };
 
         let order = {
