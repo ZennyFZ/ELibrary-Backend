@@ -61,7 +61,7 @@ class OrderController {
     }
 
     getAllOrders(req, res, next) {
-        order.find({}).populate('user').then((orders) => {
+        order.find({}).populate('user').sort( { "orderDate": -1 } ).then((orders) => {
             res.json(orders);
         }).catch((err) => {
             console.log(err);
